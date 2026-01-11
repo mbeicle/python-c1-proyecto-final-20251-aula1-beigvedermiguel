@@ -1,0 +1,34 @@
+1,user_admin,pass_user_admin,admin
+2,user_secretaria,pass_user_secretaria,secretaria
+3,user_medico_1,pass_user_medico_1,medico,1,Jesusa Delia Barrios,Odontopediatría
+4,user_medico_2,pass_user_medico_2,medico,2,Adelina Losa Fiol,Odontopediatría
+5,user_medico_3,pass_user_medico_3,medico,3,Calixta Bastida Palacio,Endodoncia
+6,user_medico_4,pass_user_medico_4,medico,4,Inés Sánchez Torrents,Endodoncia
+7,user_medico_5,pass_user_medico_5,medico,5,Roberto Abascal Ripoll,Ortodoncia
+8,user_medico_6,pass_user_medico_6,medico,6,Daniel Molins Polo,Ortodoncia
+9,user_medico_7,pass_user_medico_7,medico,7,Cirino Leiva Albero,Periodoncia
+10,user_medico_8,pass_user_medico_8,medico,8,Susana Gloria Mariscal Cid,Periodoncia
+11,user_medico_9,pass_user_medico_9,medico,9,Osvaldo Rodolfo Catalán Lago,Cirugía
+12,user_medico_10,pass_user_medico_10,medico,10,Marcial Estévez Domingo,Cirugía
+13,user_paciente_1,pass_user_paciente_1,paciente,1,Sebastian Lago Cadenas,+34 887 37 06 11,activo
+14,user_paciente_2,pass_user_paciente_2,paciente,2,Pío Coca Casado,+34 883 53 71 25,activo
+15,user_paciente_3,pass_user_paciente_3,paciente,3,Melania Rincón Vizcaíno,+34 884 30 18 23,inactivo
+16,user_paciente_4,pass_user_paciente_4,paciente,4,Ámbar Company Real,+34 806 29 07 56,inactivo
+17,user_paciente_5,pass_user_paciente_5,paciente,5,Roxana Múñiz Garmendia,+34 975 01 53 66,activo
+18,user_paciente_6,pass_user_paciente_6,paciente,6,Hermenegildo Leiva Mesa,+34 973 38 32 95,activo
+19,user_paciente_7,pass_user_paciente_7,paciente,7,Encarnacion Montes Portillo,+34 888 26 57 18,activo
+20,user_paciente_8,pass_user_paciente_8,paciente,8,Octavio Montesinos,+34 981 21 42 67,inactivo
+21,user_paciente_9,pass_user_paciente_9,paciente,9,Luisa Velázquez Cabello,+34 877 66 69 03,activo
+22,user_paciente_10,pass_user_paciente_10,paciente,10,Azeneth Pineda Morcillo,+34 820 53 04 29,activo
+23,user_paciente_11,pass_user_paciente_11,paciente,11,Glauco Meléndez,+34 945 50 50 32,activo
+24,user_paciente_12,pass_user_paciente_12,paciente,12,Felicia Tejada Mínguez,+34 887 47 07 78,activo
+25,user_paciente_13,pass_user_paciente_13,paciente,13,Dan Huerta Cerezo,+34 872 47 21 56,activo
+26,user_paciente_14,pass_user_paciente_14,paciente,14,Candelaria Ledesma Valera,+34 976 38 92 07,inactivo
+27,user_paciente_15,pass_user_paciente_15,paciente,15,Amparo Verónica Feijoo Sales,+34 902 14 48 09,activo
+28,user_paciente_16,pass_user_paciente_16,paciente,16,Nayara Lorenzo Amor,+34 747 99 73 47,activo
+29,user_paciente_17,pass_user_paciente_17,paciente,17,Margarita Corominas Coronado,+34 874 61 91 20,activo
+30,user_paciente_18,pass_user_paciente_18,paciente,18,Débora Rodriguez Amo,+3 4826 80 81 72,activo
+31,user_paciente_19,pass_user_paciente_19,paciente,19,Clara Andrade Vaquero,+34 875 51 50 85,activo
+32,user_paciente_20,pass_user_paciente_20,paciente,20,Roberta Córdoba Romero,+34 971 90 94 02,activo
+1,Salud Dental,"Cuesta de Clemente Suarez, 3 Piso 7 Madrid, 28023"
+2,Bright Smiles,"Glorieta Sebastian Rosales 64 Puerta 8 Madrid, 28009"
