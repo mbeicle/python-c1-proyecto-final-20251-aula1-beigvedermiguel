@@ -2,8 +2,8 @@
 Fichero de configuración para definir los recursos compartidos que usarán los tests
 '''
 
-import pytest
 import json
+import pytest
 from werkzeug.security import generate_password_hash
 
 from odontocare.app import create_app
@@ -16,30 +16,30 @@ from odontocare.models.usuarios import Usuario
 def app():
     ' crea la app con configuración de prueba'
     app = create_app(config_class=TestingConfig)
-    
+
     # Configuración
     #app.config.from_object(TestingConfig)
-    
+
     with app.app_context():
         # Crea todas las tablas de la DB
         db.create_all()
-        
-        # Crea el usuario administrador inicial 
+
+        # Crea el usuario administrador inicial
         admin_user = Usuario(
-            username = 'user_admin', 
+            username = 'user_admin',
             password = generate_password_hash('pass_user_admin', method='scrypt:32768:8:1'),
             rol = 'admin'
         )
-        # Crea el usuario secretaria inicial 
+        # Crea el usuario secretaria inicial
         secre_user = Usuario(
-            username = 'user_secretaria', 
+            username = 'user_secretaria',
             password = generate_password_hash('pass_user_secretaria', method='scrypt:32768:8:1'),
             rol = 'secretaria'
         )
         db.session.add(admin_user)
         db.session.add(secre_user)
         db.session.commit()
-        
+
     yield app # Proporciona la app para las pruebas
 
     # limpia después de las pruebas
@@ -63,10 +63,10 @@ def auth_login_admin(client):
         'rol': 'admin'}),
         content_type='application/json'
     )
-   
-    # Obtener el token 
+
+    # Obtener el token
     token = response.json['token']
-    
+
     return token
 
 @pytest.fixture
@@ -81,10 +81,10 @@ def auth_login_secre(client):
         'rol': 'secretaria'}),
         content_type='application/json'
     )
-   
-    # Obtener el token 
+
+    # Obtener el token
     token = response.json['token']
-    
+
     return token
 
 @pytest.fixture
@@ -99,10 +99,10 @@ def auth_login_paciente(client):
         'rol': 'paciente'}),
         content_type='application/json'
     )
-   
-    # Obtener el token 
+
+    # Obtener el token
     token = response.json['token']
-    
+
     return token
 
 @pytest.fixture
@@ -117,8 +117,8 @@ def auth_login_doctor(client):
         'rol': 'medico'}),
         content_type='application/json'
     )
-   
-    # Obtener el token 
+
+    # Obtener el token
     token = response.json['token']
-    
+
     return token

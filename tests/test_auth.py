@@ -13,7 +13,7 @@ from odontocare.config import Config
 
 def test_public_endpoint_main(client):
     'Prueba el endpoint main que no necesita autenticación'
-    
+
     response = client.get('/')
     assert response.status_code == 200
     assert 'Bienvenido a la API RESTful de OdontoCare' in response.json.get('message', '')
@@ -29,7 +29,7 @@ def test_login_failure(client):
             'rol': 'admin'}),
         content_type='application/json'
     )
-    
+
     assert response.status_code == 401
     assert 'Password incorrecta' in response.json.get('error', '')
 
@@ -49,7 +49,7 @@ def test_login_success(client):
     assert response.status_code == 200
     assert 'token' in response.json
     assert 'expires_at' in response.json
-    
+
     # Verificar que el token es válido
     token = response.json['token']
     try:

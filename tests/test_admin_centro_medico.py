@@ -7,23 +7,23 @@ import json
 
 def test_admin_add_centro_medico(client, auth_login_admin):
     'Prueba con éxito el endpoint /admin/centro_medico'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
-    # Se crean los datos del nuevo centro médico 
+
+    # Se crean los datos del nuevo centro médico
     new_centro = {
                 'nombre': 'Sonrisa Luminosa',
                 'direccion': 'Calle Rosales 34 bajo, Madrid 28033'
                }
-    
+
     #with client():
     # Se realiza la petición POST
     response = client.post('/admin/centro_medico', headers=headers, data=json.dumps(new_centro))
-    
+
     # Se verifica el resultado
     assert response.status_code == 201
     assert 'Centro Médico registrado exitosamente' in response.json.get('message', '')
@@ -31,17 +31,17 @@ def test_admin_add_centro_medico(client, auth_login_admin):
 
 def test_admin_add_centro_medico_data_missing(client, auth_login_admin):
     'Prueba el endpoint /admin/centro_medico con datos faltantes'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo centro médico 
+    # Se crean los datos de un nuevo centro médico
     new_centro = {
                 'nombre': 'Sonrisa Luminosa'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/centro_medico', headers=headers, data=json.dumps(new_centro))
 
@@ -52,18 +52,18 @@ def test_admin_add_centro_medico_data_missing(client, auth_login_admin):
 
 def test_admin_add_centro_medico_validate_error(client, auth_login_admin):
     'Prueba el endpoint /admin/centro_medico con un error de validación'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo centro médico 
+    # Se crean los datos de un nuevo centro médico
     new_centro = {
                 'nombre': 'So',
                 'direccion': 'Calle Rosales 34 bajo, Madrid 28033'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/centro_medico', headers=headers, data=json.dumps(new_centro))
 
@@ -74,18 +74,18 @@ def test_admin_add_centro_medico_validate_error(client, auth_login_admin):
 
 def test_admin_add_centro_medico_exists(client, auth_login_admin):
     'Prueba el endpoint /admin/centro_medico con un centro ya existente'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo centro médico 
+    # Se crean los datos de un nuevo centro médico
     new_centro = {
                 'nombre': 'Sonrisa Luminosa',
                 'direccion': 'Calle Rosales 34 bajo, Madrid 28033'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/centro_medico', headers=headers, data=json.dumps(new_centro))
 
@@ -95,7 +95,7 @@ def test_admin_add_centro_medico_exists(client, auth_login_admin):
 
 def test_admin_id_centro_medico(client, auth_login_admin):
     'Prueba el endpoint /admin/centro_medico/<int:id_centro>'
-    
+
     # Se asigna un id al id_centro
     id_centro = 1
     # Se formatea la url con el id_centro
@@ -105,13 +105,13 @@ def test_admin_id_centro_medico(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get(url, headers=headers)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     centro_data = json.loads(response.data)
 
     assert 'direccion' in centro_data['Centro Médico']
@@ -122,7 +122,7 @@ def test_admin_id_centro_medico(client, auth_login_admin):
 
 def test_admin_id_centro_medico_failed(client, auth_login_admin):
     'Prueba el fallo del endpoint /admin/centro_medico/<int:id_centro>'
-    
+
     # Se asigna un id 'no válido' al id_centro
     id_centro = 99
     # Se formatea la url con el id_centro
@@ -132,7 +132,7 @@ def test_admin_id_centro_medico_failed(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get(url, headers=headers)
 
@@ -143,19 +143,19 @@ def test_admin_id_centro_medico_failed(client, auth_login_admin):
 
 def test_admin_centros_medicos_default(client, auth_login_admin):
     'Prueba el endpoint /admin/centros_medicos con query params por defecto'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/centros_medicos', headers=headers)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     centros = json.loads(response.data)
 
     assert 'centros médicos' in centros
@@ -166,7 +166,7 @@ def test_admin_centros_medicos_default(client, auth_login_admin):
 
 def test_admin_centros_medicos_custom_page(client, auth_login_admin):
     'Prueba el endpoint /admin/centros_medicos con query params en la url'
-    
+
     # Se asignan los query params
     query_params = {
         'page': 1,
@@ -177,13 +177,13 @@ def test_admin_centros_medicos_custom_page(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
         }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/centros_medicos', headers=headers, query_string=query_params)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     centros = json.loads(response.data)
 
     assert 'centros médicos' in centros
@@ -194,7 +194,7 @@ def test_admin_centros_medicos_custom_page(client, auth_login_admin):
 
 def test_admin_centros_medicos_custom_page_failed(client, auth_login_admin):
     'Prueba el endpoint /admin/centros_medicos con query params erróneos en la url'
-    
+
     # Se asignan los query params
     query_params = {
         'page': 100,
@@ -205,7 +205,7 @@ def test_admin_centros_medicos_custom_page_failed(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
         }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/centros_medicos', headers=headers, query_string=query_params)
 

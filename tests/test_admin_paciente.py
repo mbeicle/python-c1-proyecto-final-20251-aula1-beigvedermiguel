@@ -7,14 +7,14 @@ import json
 
 def test_admin_add_paciente(client, auth_login_admin):
     'Prueba con éxito el endpoint /admin/paciente'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
-    # Se crean los datos del nuevo paciente 
+
+    # Se crean los datos del nuevo paciente
     new_paciente = {
                 'username': 'user_paciente_1',
                 'password': 'pass_user_paciente_1',
@@ -23,10 +23,10 @@ def test_admin_add_paciente(client, auth_login_admin):
                 'telefono': '+34 670 89 54 32',
                 'estado': 'activo'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/paciente', headers=headers, data=json.dumps(new_paciente))
-    
+
     # Se verifica el resultado
     assert response.status_code == 201
     assert 'Usuario y Paciente registrados exitosamente' in response.json.get('message', '')
@@ -34,13 +34,13 @@ def test_admin_add_paciente(client, auth_login_admin):
 
 def test_admin_add_paciente_data_missing(client, auth_login_admin):
     'Prueba el endpoint /admin/paciente con datos faltantes'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo paciente 
+    # Se crean los datos de un nuevo paciente
     new_paciente = {
                 'username': 'user_paciente_2',
                 'password': 'pass_user_paciente_2',
@@ -48,7 +48,7 @@ def test_admin_add_paciente_data_missing(client, auth_login_admin):
                 'telefono': '+34 670 89 54 32',
                 'estado': 'activo'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/paciente', headers=headers, data=json.dumps(new_paciente))
 
@@ -59,13 +59,13 @@ def test_admin_add_paciente_data_missing(client, auth_login_admin):
 
 def test_admin_add_paciente_validate_error(client, auth_login_admin):
     'Prueba el endpoint /admin/paciente con un error de validación'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo paciente 
+    # Se crean los datos de un nuevo paciente
     new_paciente = {
                 'username': 'user_paciente_3',
                 'password': 'pass_user_paciente_3',
@@ -74,7 +74,7 @@ def test_admin_add_paciente_validate_error(client, auth_login_admin):
                 'telefono': '+3',
                 'estado': 'activo'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/paciente', headers=headers, data=json.dumps(new_paciente))
 
@@ -85,13 +85,13 @@ def test_admin_add_paciente_validate_error(client, auth_login_admin):
 
 def test_admin_add_paciente_exists(client, auth_login_admin):
     'Prueba el endpoint /admin/paciente con un paciente existente'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo paciente 
+    # Se crean los datos de un nuevo paciente
     new_paciente = {
                 'username': 'user_paciente_1',
                 'password': 'pass_user_paciente_1',
@@ -100,7 +100,7 @@ def test_admin_add_paciente_exists(client, auth_login_admin):
                 'telefono': '+34 670 89 54 32',
                 'estado': 'activo'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/doctor', headers=headers, data=json.dumps(new_paciente))
 
@@ -110,7 +110,7 @@ def test_admin_add_paciente_exists(client, auth_login_admin):
 
 def test_admin_id_paciente(client, auth_login_admin):
     'Prueba el endpoint /admin/paciente/<int:id_paciente>'
-    
+
     # Se asigna un id al id_paciente
     id_paciente = 1
     # Se formatea la url con el id_paciente
@@ -120,13 +120,13 @@ def test_admin_id_paciente(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get(url, headers=headers)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     user_data = json.loads(response.data)
 
     assert 'estado' in user_data['Paciente']
@@ -137,7 +137,7 @@ def test_admin_id_paciente(client, auth_login_admin):
 
 def test_admin_id_paciente_failed(client, auth_login_admin):
     'Prueba el fallo del endpoint /admin/paciente/<int:id_paciente>'
-    
+
     # Se asigna un id 'no válido' al id_paciente
     id_paciente = 99
     # Se formatea la url con el id_paciente
@@ -147,7 +147,7 @@ def test_admin_id_paciente_failed(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get(url, headers=headers)
 
@@ -158,19 +158,19 @@ def test_admin_id_paciente_failed(client, auth_login_admin):
 
 def test_admin_pacientes_default(client, auth_login_admin):
     'Prueba el endpoint /admin/pacientes con query params por defecto'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/pacientes', headers=headers)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     pacientes = json.loads(response.data)
 
     assert 'pacientes' in pacientes
@@ -181,7 +181,7 @@ def test_admin_pacientes_default(client, auth_login_admin):
 
 def test_admin_pacientes_custom_page(client, auth_login_admin):
     'Prueba el endpoint /admin/pacientes con query params en la url'
-    
+
     # Se asignan los query params
     query_params = {
         'page': 1,
@@ -192,13 +192,13 @@ def test_admin_pacientes_custom_page(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
         }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/pacientes', headers=headers, query_string=query_params)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     pacientes = json.loads(response.data)
 
     assert 'pacientes' in pacientes
@@ -209,7 +209,7 @@ def test_admin_pacientes_custom_page(client, auth_login_admin):
 
 def test_admin_pacientes_custom_page_failed(client, auth_login_admin):
     'Prueba el endpoint /admin/pacientes con query params erróneos en la url'
-    
+
     # Se asignan los query params
     query_params = {
         'page': 100,
@@ -220,7 +220,7 @@ def test_admin_pacientes_custom_page_failed(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
         }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/pacientes', headers=headers, query_string=query_params)
 

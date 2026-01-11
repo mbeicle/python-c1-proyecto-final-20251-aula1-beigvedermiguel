@@ -7,19 +7,19 @@ import json
 
 def test_admin_add_usuario(client, auth_login_admin):
     'Prueba con éxito el endpoint /admin/usuario'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo usuario 
+    # Se crean los datos de un nuevo usuario
     new_user = {
                 'username': 'user_paciente_12',
                 'password': 'pass_user_paciente_12',
                 'rol': 'paciente'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/usuario', headers=headers, data=json.dumps(new_user))
 
@@ -30,18 +30,18 @@ def test_admin_add_usuario(client, auth_login_admin):
 
 def test_admin_add_usuario_data_missing(client, auth_login_admin):
     'Prueba el endpoint /admin/usuario con datos faltantes'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo usuario 
+    # Se crean los datos de un nuevo usuario
     new_user = {
                 'username': 'user_paciente_110',
                 'password': 'pass_user_paciente_110'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/usuario', headers=headers, data=json.dumps(new_user))
 
@@ -52,19 +52,19 @@ def test_admin_add_usuario_data_missing(client, auth_login_admin):
 
 def test_admin_add_usuario_validate_error(client, auth_login_admin):
     'Prueba el endpoint /admin/usuario con un error de validación'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo usuario 
+    # Se crean los datos de un nuevo usuario
     new_user = {
                 'username': 'user_paciente_101',
                 'password': 'pass_user_paciente_101',
                 'rol': ''
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/usuario', headers=headers, data=json.dumps(new_user))
 
@@ -75,19 +75,19 @@ def test_admin_add_usuario_validate_error(client, auth_login_admin):
 
 def test_admin_add_usuario_user_exists(client, auth_login_admin):
     'Prueba el endpoint /admin/usuario con un usuario existente'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    # Se crean los datos de un nuevo usuario 
+    # Se crean los datos de un nuevo usuario
     new_user = {
                 'username': 'user_paciente_12',
                 'password': 'pass_user_paciente_12',
                 'rol': 'paciente'
                }
-    
+
     # Se realiza la petición POST
     response = client.post('/admin/usuario', headers=headers, data=json.dumps(new_user))
 
@@ -97,7 +97,7 @@ def test_admin_add_usuario_user_exists(client, auth_login_admin):
 
 def test_admin_id_usuario(client, auth_login_admin):
     'Prueba el endpoint /admin/usuario/<int:id_usuario>'
-    
+
     # Se asigna un usuario al id_usuario
     id_usuario = 5
     # Se formatea la url con el id_usuario
@@ -107,13 +107,13 @@ def test_admin_id_usuario(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get(url, headers=headers)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     user_data = json.loads(response.data)
 
     assert 'rol' in user_data['Usuario']
@@ -124,7 +124,7 @@ def test_admin_id_usuario(client, auth_login_admin):
 
 def test_admin_id_usuario_failed(client, auth_login_admin):
     'Prueba el fallo del endpoint /admin/usuario/<int:id_usuario>'
-    
+
     # Se asigna un usuario 'no válido' al id_usuario
     id_usuario = 57
     # Se formatea la url con el id_usuario
@@ -134,7 +134,7 @@ def test_admin_id_usuario_failed(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get(url, headers=headers)
 
@@ -145,19 +145,19 @@ def test_admin_id_usuario_failed(client, auth_login_admin):
 
 def test_admin_usuarios_default(client, auth_login_admin):
     'Prueba el endpoint /admin/usuarios con query params por defecto'
-    
+
     # Se preparan las cabeceras
     headers = {
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
     }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/usuarios', headers=headers)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     usuarios = json.loads(response.data)
 
     assert 'usuarios' in usuarios
@@ -168,7 +168,7 @@ def test_admin_usuarios_default(client, auth_login_admin):
 
 def test_admin_usuarios_custom_page(client, auth_login_admin):
     'Prueba el endpoint /admin/usuarios con query params en la url'
-    
+
     # Se asignan los query params
     query_params = {
         'page': 1,
@@ -179,13 +179,13 @@ def test_admin_usuarios_custom_page(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
         }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/usuarios', headers=headers, query_string=query_params)
 
     # Se verifica el resultado
     assert response.status_code == 200
-    
+
     usuarios = json.loads(response.data)
 
     assert 'usuarios' in usuarios
@@ -196,7 +196,7 @@ def test_admin_usuarios_custom_page(client, auth_login_admin):
 
 def test_admin_usuarios_custom_page_failed(client, auth_login_admin):
     'Prueba el endpoint /admin/usuarios con query params erróneos en la url'
-    
+
     # Se asignan los query params
     query_params = {
         'page': 100,
@@ -207,7 +207,7 @@ def test_admin_usuarios_custom_page_failed(client, auth_login_admin):
         'Authorization': f'Bearer {auth_login_admin}',
         'Content-Type': 'application/json'
         }
-    
+
     # Se realiza la petición GET
     response = client.get('/admin/usuarios', headers=headers, query_string=query_params)
 
