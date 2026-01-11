@@ -7,7 +7,7 @@ from odontocare.extensions import db
 class CitaMedica(db.Model):
     'Define el modelo de la tabla CitaMedica para la base de datos'
     __tablename__ = 'cita_medica'
-    id_cita = db.Column(db.Integer, primary_key=True, nullable=False, 
+    id_cita = db.Column(db.Integer, primary_key=True, nullable=False,
                         unique=True, autoincrement=True)
     fecha = db.Column(db.DateTime, nullable=False)
     motivo = db.Column(db.String(30))

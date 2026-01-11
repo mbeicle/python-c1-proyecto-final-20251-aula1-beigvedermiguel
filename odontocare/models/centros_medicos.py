@@ -18,10 +18,3 @@ class CentroMedico(db.Model):
                 'nombre': self.nombre, 
                 'direccion': self.direccion
                }
-
-def to_dict(self):
-        'Serializa el centro_medico a diccionario/JSON para respuestas JSON'
-        return {'id_centro': self.id_centro,
-                'nombre': self.nombre,
-                'direccion': self.direccion
-               }
