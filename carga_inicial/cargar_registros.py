@@ -1,7 +1,9 @@
 '''
 Docstring para el módulo que recoge las funciones 'login' y 'carga_registros'
 '''
-import os, csv, sys
+import os
+import csv
+import sys
 import requests
 from odontocare.config import basedir_data
 
@@ -60,7 +62,7 @@ def login():
         print(f"Error de conexión: {e}")
 
     return token
-                    
+
 
 def carga_reg(token):
     '''
@@ -81,7 +83,7 @@ def carga_reg(token):
         with open(FILE_CSV, mode='r', newline='', encoding='utf-8') as file:
             reader = csv.reader(file)
             # Se salta la primera línea (registro 'admin')
-            next(reader, None)           
+            next(reader, None)
             # Lee la segunda línea del archivo (registro 'secretaria')
             line = next(reader)
             # Recupera los datos
@@ -93,10 +95,11 @@ def carga_reg(token):
             # Enviar los datos como JSON a la API
             respuesta = requests.post(f'{BASE_URL}/admin/usuario',
                                         json=datos_secretaria,
-                                        headers=headers
+                                        headers=headers,
+                                        timeout=3
                                         )
             if respuesta.status_code != 201:
-                    print(f'Error al registrar la secretaria {respuesta.json()}')
+                print(f'Error al registrar la secretaria {respuesta.json()}')
 
             # Lee las siguientes líneas del archivo (registros 'doctores')
             for i in range(0, 10):
@@ -109,11 +112,12 @@ def carga_reg(token):
                                 'nombre': line[5],
                                 'especialidad': line[6]
                                 }
-                
+
                 # Envia los datos como JSON a la API
                 respuesta = requests.post(f'{BASE_URL}/admin/doctor',
                                         json=datos_doctor,
-                                        headers=headers
+                                        headers=headers,
+                                        timeout=3
                                         )
                 if respuesta.status_code != 201:
                     print(f'Error al registrar a un usuario: doctor {respuesta.json()}')
@@ -130,11 +134,12 @@ def carga_reg(token):
                                 'telefono': line[6],
                                 'estado': line[7]
                                 }
-                
+
                 # Enviar los datos como JSON a la API
                 respuesta = requests.post(f'{BASE_URL}/admin/paciente',
                                         json=datos_paciente,
-                                        headers=headers
+                                        headers=headers,
+                                        timeout=3
                                         )
                 if respuesta.status_code != 201:
                     print(f'Error al registrar a los usuarios: pacientes {respuesta.json()}')
@@ -150,7 +155,8 @@ def carga_reg(token):
                 # Enviar los datos de centro_medico como JSON a la API
                 respuesta = requests.post(f'{BASE_URL}/admin/centro_medico',
                                         json=datos_centro_medico,
-                                        headers=headers
+                                        headers=headers, 
+                                        timeout=3
                                         )
                 if respuesta.status_code != 201:
                     print(f'Error al registrar los Centros Médicos {respuesta.json()}')
@@ -160,4 +166,3 @@ def carga_reg(token):
         sys.exit(1)
 
     return
-

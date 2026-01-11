@@ -3,11 +3,14 @@ Docstring para el módulo que recoge la función que lee los datos del usuario
 'admin' y añade el registro a la Base de Datos.
 '''
 
-import os, csv, sys
+import os
+import csv
+import sys
+from werkzeug.security import generate_password_hash
+
 from odontocare.config import basedir_data
 from odontocare.extensions import db
 from odontocare.models.usuarios import Usuario
-from werkzeug.security import generate_password_hash
 
 FILE_CSV =os.path.join(basedir_data, 'datos.csv')
 
@@ -38,7 +41,7 @@ def run_seed(app):
     except FileNotFoundError:
         print('Error: No se ha encontrado el archivo "datos.csv".')
         sys.exit(1)
-    
+
     # Graba los datos del usuario 'admin' en la Base de Datos
     with app.app_context():
         db.init_app(app)

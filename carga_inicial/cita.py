@@ -4,12 +4,12 @@ Docstring para crear_cita:
     Imprime en consola el JSON con la cita creada 
 '''
 
-import requests
-import csv, os, sys
+import csv
+import os
+import sys
 import datetime
 import json
-
-#from werkzeug.security import generate_password_hash
+import requests
 
 from odontocare.config import basedir_data
 from odontocare.models.citas import CitaMedica
@@ -33,7 +33,7 @@ def crear_cita(app, token):
     Crea una cita médica
     Imprime en consola el JSON con la cita creada
     '''
-    
+
     # Si la API proporciona un token válido para el admin
     if token:
         # Crea las cabeceras con el Bearer Token
@@ -48,7 +48,7 @@ def crear_cita(app, token):
     with app.app_context():
         if CitaMedica.query.filter_by(id_cita=1).first() is None:
             cita_registrada = False
-            while cita_registrada == False:
+            while not cita_registrada:
                 # Lee del fichero datos.csv los datos necesarios para crear la cita
                 try:
                     with open(FILE_CSV, mode='r', newline='', encoding='utf-8') as file:
@@ -67,14 +67,15 @@ def crear_cita(app, token):
                                       'id_paciente': ID_PACIENTE,
                                       'id_doctor': ID_DOCTOR,
                                       'id_centro': ID_CENTRO
-                                     }    
+                                     }
                     # Enviar los datos como JSON a la API
                     respuesta = requests.post(f'{BASE_URL}/citas/agendar',
                                                 json=datos_cita,
-                                                headers=headers
+                                                headers=headers,
+                                                timeout=3
                                                 )
                     if respuesta.status_code == 201:
-                        cita_registrada = True    
+                        cita_registrada = True
                     else:
                         print(f'Error al registrar la cita {respuesta.json()}')
                     datos_json = respuesta.json()
