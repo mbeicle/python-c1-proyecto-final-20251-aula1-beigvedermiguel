@@ -6,6 +6,7 @@ from marshmallow import Schema, fields, validate
 
 # Esquema para validar los campos de Cita
 class CitaSchema(Schema):
+    'clase que define el esquema de la tabla de citas'
     fecha = fields.DateTime(required=True)
     motivo = fields.String(validate=validate.Length(min=3, max=30))
     estado = fields.String(validate=validate.Length(min=3, max=20))
