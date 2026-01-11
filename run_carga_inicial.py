@@ -5,7 +5,8 @@ y llama al resto de funciones.
 
 import sys
 from os import getcwd
-import subprocess, time
+import subprocess
+import time
 from flask import Flask
 from odontocare import config as conf
 from carga_inicial import seed_admin, cargar_registros, cita
