@@ -40,7 +40,7 @@ def add_usuario():
     # Asegura que la petición contiene datos JSON
     if not request.is_json:
         return jsonify({'message': 'Missing JSON in request'}), 400
-    
+
     # Asegura que la contraseña no está vacía
     if data['password']:
         # Hashear la contraseña antes de validar
@@ -48,7 +48,7 @@ def add_usuario():
         data['password'] = password
     else:
         return jsonify({'error': 'El campo "password" no debe estar vacío.'}), 400
-    
+
     # Extrae y valida los datos del cuerpo de la petición (request body)
     try:
         # Validar y cargar los datos
@@ -60,11 +60,11 @@ def add_usuario():
 
     # Si la validación es exitosa, se utilizan los datos (validated_data)
     # para crear un nuevo usuario.
-        
+
     # Verifica si el usuario ya existe en la base de datos
     if Usuario.query.filter_by(username=validated_data['username']).first():
         return jsonify({'error': 'El usuario ya existe'}), 409
-          
+
     new_user = Usuario(
                        username=validated_data['username'],
                        password=validated_data['password'],
@@ -88,7 +88,7 @@ def get_usuario(id_usuario):
 
     # Obtiene los datos JSON del cuerpo de la petición
     usuario = Usuario.query.get(id_usuario)
-    
+
     # Si se encuentra al usuario, se devuelven sus datos
     if usuario:
         usuario_data = usuario.to_dict()
@@ -103,7 +103,7 @@ def get_usuarios():
     """
     Endpoint GET para obtener los datos de todos los usuarios.
     """
-    
+
     # Obtiene parámetros de paginación de la URL.
     # Los valores por defecto: página 1 y 10 elementos por página
     page = request.args.get('page', 1, type=int)
@@ -147,7 +147,7 @@ def add_doctor():
     # Asegura que la petición contiene datos JSON
     if not request.is_json:
         return jsonify({'message': 'Missing JSON in request'}), 400
- 
+
     # Extrae y valida los datos del cuerpo de la petición (request body)
     # Primero extrae los datos de Usuario
     username = data.get('username')
@@ -156,14 +156,14 @@ def add_doctor():
     # Después extrae los datos de Doctor
     nombre = data.get('nombre')
     especialidad = data.get('especialidad')
-    
+
     # Asegura que la contraseña no está vacía
     if password:
         # Hashea la contraseña antes de validar
         password = generate_password_hash(data['password'], method='scrypt:32768:8:1')
     else:
         return jsonify({'error': 'El campo "password" no debe estar vacío.'}), 400
-    
+
     # Comienza la creación de los registros
     try:
         # Valida los datos de Usuario
@@ -174,25 +174,25 @@ def add_doctor():
         except ValidationError as err:
             # Manejar errores de validación
             return jsonify(err.messages), 400
-        
+
         # Si la validación es exitosa, se utilizan los datos (validated_data_user)
         # para crear un nuevo usuario.
-            
+
         # Verifica si el usuario ya existe en la base de datos
         if Usuario.query.filter_by(username=validated_data_user['username']).first():
             return jsonify({'error': 'El usuario ya existe'}), 409
-    
+
         # Crea el nuevo usuario
         new_user = Usuario(
                             username=validated_data_user['username'],
                             password=validated_data_user['password'],
                             rol = validated_data_user['rol']
                         )
-        
+
         # Se guarda en la base de datos
         db.session.add(new_user)
         #db.session.commit()
-        
+
         # Ahora ya está disponible el 'id_usuario' para dar de alta al Doctor
         #id_usuario = new_user.id_usuario
 
@@ -202,7 +202,7 @@ def add_doctor():
         if last_user:
             id_usuario = last_user.id_usuario
         else:
-            print("La tabla de usuarios está vacía.") 
+            print("La tabla de usuarios está vacía.")
 
         # Valida los datos de Doctor
         try:
@@ -215,29 +215,29 @@ def add_doctor():
 
         # Si la validación es exitosa, se utilizan los datos (validated_data)
         # para crear un nuevo doctor.
-            
+
         # Verifica si el doctor ya existe en la base de datos
         if Doctor.query.filter_by(nombre=validated_data_doctor['nombre']).first():
             return jsonify({'error': 'El doctor ya existe'}), 409
-        
-        # Crea el nuevo doctor      
+
+        # Crea el nuevo doctor
         new_doctor = Doctor(
                             id_usuario=validated_data_doctor['id_usuario'],
                             nombre=validated_data_doctor['nombre'],
                             especialidad=validated_data_doctor['especialidad']
                         )
-        
+
         # Se guarda en la base de datos
         db.session.add(new_doctor)
-        
+
         # Se hace commit de los dos registros en la base de datos
         db.session.commit()
-        
+
         return jsonify({'message': 'Usuario y Doctor registrados exitosamente',
                         'id_usuario': id_usuario,
                         'id_doctor': new_doctor.id_doctor
                     }), 201
-    
+
     except Exception as e:
          # En caso de error, se hace rollback para no dejar registros de doctor inconsistentes
         db.session.rollback()
@@ -274,7 +274,7 @@ def get_doctores():
     """
     Endpoint GET para obtener los datos de todos los doctores.
     """
-    
+
     # Obtiene parámetros de paginación de la URL.
     # Los valores por defecto: página 1 y 10 elementos por página
     page = request.args.get('page', 1, type=int)
@@ -329,14 +329,14 @@ def add_paciente():
     nombre = data.get('nombre')
     telefono = data.get('telefono')
     estado = data.get('estado')
-    
+
     # Asegura que la contraseña no está vacía
     if password:
         # Hashea la contraseña antes de validar
         password = generate_password_hash(data['password'], method='scrypt:32768:8:1')
     else:
         return jsonify({'error': 'El campo "password" no debe estar vacío.'}), 400
-    
+
     # Comienza la creación de los registros
     try:
         # Valida los datos de Usuario
@@ -363,25 +363,30 @@ def add_paciente():
         # Se guarda en la base de datos
         db.session.add(new_user)
         db.session.commit()
-        
+
         # Ahora ya está disponible el 'id_usuario' para dar de alta al Paciente
         id_usuario = new_user.id_usuario
 
         # Valida los datos de Paciente
         try:
-            paciente_data = ({'nombre': nombre,'telefono': telefono, 'estado': estado, 'id_usuario': id_usuario})
+            paciente_data = ({
+                              'nombre': nombre,
+                              'telefono': telefono, 
+                              'estado': estado, 
+                              'id_usuario': id_usuario
+                             })
             validated_data_paciente = paciente_schema.pacient_schema.load(paciente_data)
             # Los datos validados están en validated_data_paciente (como diccionario de Python)
         except ValidationError as err:
             # Manejar errores de validación
             return jsonify(err.messages), 400
-            
+
         # Verifica si el paciente ya existe en la base de datos
         if Paciente.query.filter_by(nombre=validated_data_paciente['nombre']).first():
             return jsonify({'error': 'El paciente ya existe'}), 409
 
         # Si los datos son correctos, se utilizan para crear el paciente
-        
+
         # Crea el nuevo paciente
         new_paciente = Paciente(
                             id_usuario=validated_data_paciente['id_usuario'],
@@ -392,7 +397,7 @@ def add_paciente():
         # Se guarda en la base de datos
         db.session.add(new_paciente)
         db.session.commit()
-        
+
         return jsonify({'message': 'Usuario y Paciente registrados exitosamente',
                         'id_usuario': id_usuario,
                         'id_paciente': new_paciente.id_paciente
@@ -432,7 +437,7 @@ def get_pacientes():
     """
     Endpoint GET para obtener los datos de todos los pacientes.
     """
-    
+
     # Obtiene parámetros de paginación de la URL.
     # Los valores por defecto: página 1 y 10 elementos por página
     page = request.args.get('page', 1, type=int)
@@ -451,7 +456,7 @@ def get_pacientes():
         return jsonify({
             'error': 'La pagina solicitada no contiene pacientes.'
         })
-    
+
     return jsonify({
                     'pacientes': pacientes_on_page,
                     'pagination': {
@@ -490,11 +495,11 @@ def add_centro():
 
     # Si la validación es exitosa, se utilizan los datos (validated_data)
     # para crear un nuevo centro médico.
-        
+
     # Verifica si el centro médico ya existe en la base de datos
     if CentroMedico.query.filter_by(nombre=validated_data['nombre']).first():
         return jsonify({'error': 'El centro médico ya existe'}), 409
-          
+
     new_centro_medico = CentroMedico(
                                     nombre=validated_data['nombre'],
                                     direccion=validated_data['direccion']
@@ -531,7 +536,7 @@ def get_centros():
     """
     Endpoint GET para obtener los datos de todos los centros médicos.
     """
-    
+
     # Obtiene parámetros de paginación de la URL.
     # Los valores por defecto: página 1 y 5 elementos por página
     page = request.args.get('page', 1, type=int)
@@ -542,12 +547,12 @@ def get_centros():
 
     # Serializa los elementos de la página actual
     centros_on_page = [centro.to_dict() for centro in pagination.items]
-    
+
     if page > pagination.pages:
         return jsonify({
             'error': 'La página solicitada no contiene Centros Médicos.'
         })
-    
+
     return jsonify({
                     'centros médicos': centros_on_page,
                     'pagination': {

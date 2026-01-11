@@ -29,7 +29,7 @@ allowed_roles =['admin']
 
 def generate_jwt_token(username, rol):
     'genera un token JWT para un usuario'
-    
+
     # Construye el payload con el ROL incluido
     payload = {
         'sub': username,
@@ -37,9 +37,9 @@ def generate_jwt_token(username, rol):
         'iat': datetime.now(timezone.utc),
         'exp': datetime.now(timezone.utc) + config.Config.JWT_EXPIRATION_DELTA
     }
-    
+
     token = encode(payload, key=config.Config.JWT_SECRET_KEY, algorithm='HS256')
-    
+
     return token
 
 # ---- Login: recupera usuario y password ----
@@ -57,19 +57,19 @@ def login():
     user = Usuario.query.filter_by(username=username).first()
 
     # Validar credenciales
-    
+
     if not user:
         return jsonify({'error': f'Usuario: {username} no encontrado.'}), 404
-    
+
     if not check_password_hash(user.password, password):
         return jsonify({'error': 'Password incorrecta'}), 401
-    
+
     # Credenciales correctas
     token = generate_jwt_token(username, rol)
     expiration = datetime.now(timezone.utc) + config.Config.JWT_EXPIRATION_DELTA
-        
+
     return jsonify({'token':token, 'rol':rol, 'expires_at':expiration.isoformat(timespec='hours') + 'Z'}), 200
-    
+
 
 # ----- Decorador de autorización por rol -----
 
