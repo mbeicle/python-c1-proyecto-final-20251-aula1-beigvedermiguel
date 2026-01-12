@@ -6,16 +6,12 @@ Endpoints para /cita de la API 'OdontoCare' que realiza:
     - respuestas en formato JSON
 '''
 
+from datetime import datetime
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
-from sqlalchemy import join
-from datetime import datetime
 from jwt import decode
+import requests
 
-from odontocare.models.usuarios import Usuario
-from odontocare.models.doctores import Doctor
-from odontocare.models.pacientes import Paciente
-from odontocare.models.centros_medicos import CentroMedico
 from odontocare.models.citas import CitaMedica
 
 from odontocare.config import Config, EstadoUsuario
@@ -28,9 +24,12 @@ from odontocare.routes.auth import requiere_rol
 citas_bp = Blueprint('citas_bp', __name__, url_prefix='/citas')
 
 # Roles permitidos
-allowed_roles_crear = ['admin', 'paciente']
+allowed_roles_crear = ['admin', 'secretaria']
 allowed_roles_listar = ['admin', 'secretaria', 'medico']
 allowed_roles_cancelar = ['admin', 'secretaria']
+
+# URL base para comunicarse con otros servicios
+BASE_URL = "http://localhost:5000"
 
 # --------- Ruta para crear cita -------------
 
@@ -46,7 +45,7 @@ def add_cita():
     # Asegura que la petición contiene datos JSON
     if not request.is_json:
         return jsonify({'message': 'Missing JSON in request'}), 400
-    
+
     # Extrae y valida los datos del cuerpo de la petición (request body)
     try:
         # Parsea la fecha
@@ -60,29 +59,72 @@ def add_cita():
 
     # Si la validación es exitosa, se utilizan los datos (validated_data)
     # para crear una nueva cita.
-    
-    # Se busca al paciente en la base de datos
-    paciente = Paciente.query.filter_by(id_usuario=validated_data['id_usuario']).first()
-    # Se comprueba que existe
+
+    # Extrae el token del header Authorization: Bearer <token>
+    auth_header = request.headers.get('Authorization', '')
+    partes = auth_header.split()
+    token = partes[1]
+    # Si el token es válido
+    if token:
+        # Crea las cabeceras con el Bearer Token
+        headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+                }
+
+    # Se busca al paciente mediante una petición GET
+    url = f'{BASE_URL}/admin/paciente/{validated_data['id_paciente']}'
+    response = requests.get(url, headers=headers, timeout=3)
+
+    # Se verifica si la petición fue exitosa
+    if response.status_code == 200:
+        # Decodificar la respuesta JSON en un diccionario o lista de Python
+        paciente = response.json()
+    else:
+        # Maneja códigos de error
+        return jsonify({'error': f'Error al obtener datos: {response.status_code}'})
+
+    # Se comprueba que existe el paciente
     if not paciente:
         return jsonify({'error': 'El paciente no existe en la Base de Datos'}), 200
+    #return jsonify({'paciente': paciente})
     # Se comprueba si está activo
-    if paciente.estado == EstadoUsuario.INACTIVO:
+    if paciente['Paciente']['estado'] == EstadoUsuario.INACTIVO:
         return jsonify({'error': 'Usuario no está activo'}), 200
-    # Se busca al doctor en la base de datos
-    doctor = Doctor.query.filter_by(id_doctor=validated_data['id_doctor']).first()
+
+    # Se busca al doctor mediante una petición GET
+    url = f'{BASE_URL}/admin/doctor/{validated_data['id_doctor']}'
+    response = requests.get(url, headers=headers, timeout=3)
+    # Verifica si la petición fue exitosa
+    if response.status_code == 200:
+        # Decodificar la respuesta JSON en un diccionario o lista de Python
+        doctor = response.json()
+    else:
+        # Maneja códigos de error
+        return jsonify({'error': f'Error al obtener datos: {response.status_code}'})
+    # Se comprueba que existe
     if not doctor:
         return jsonify({'error': 'El Doctor no existe en la Base de Datos'}), 200
-    # Se busca el centro médico en la base de datos
-    centro_medico = CentroMedico.query.filter_by(id_centro=validated_data['id_centro']).first()
+
+    # Se busca el centro médico mediante una petición GET
+    url = f'{BASE_URL}/admin/centro_medico/{validated_data['id_centro']}'
+    response = requests.get(url, headers=headers, timeout=3)
+    # Verifica si la petición fue exitosa
+    if response.status_code == 200:
+        # Decodificar la respuesta JSON en un diccionario o lista de Python
+        centro_medico = response.json()
+    else:
+        # Maneja códigos de error
+        return jsonify({'error': f'Error al obtener datos: {response.status_code}'})
     if not centro_medico:
         return jsonify({'error': 'El Centro Médico no existe en la Base de Datos'}), 200
-    
+
     # Busca citas del doctor en esa misma fecha para ver si está libre
-    cita = CitaMedica.query.filter_by(fecha=validated_data['fecha'], id_doctor=validated_data['id_doctor']).first()
+    cita = CitaMedica.query.filter_by(fecha=validated_data['fecha'],
+                                      id_doctor=validated_data['id_doctor']).first()
     if cita:
         return jsonify({'error': 'El Doctor ya tiene una cita a esa hora en esa fecha'}), 200
-        
+
     new_cita = CitaMedica(
                           fecha = validated_data['fecha'],
                           motivo = validated_data['motivo'],
@@ -147,42 +189,62 @@ def get_citas():
     username = payload.get('sub')
     user_rol = payload.get('rol')
 
-    # Aplica los filtros a las citas según el rol del peticionario y 
+    # Si el token es válido
+    if token:
+        # Crea las cabeceras con el Bearer Token
+        headers = {
+                "Authorization": f"Bearer {token}",
+                "Content-Type": "application/json"
+                }
+
+    # Aplica los filtros a las citas según el rol del peticionario y
     # el 'query param' presente en la petición
-    if id_doctor: 
+    if id_doctor:
         if user_rol == 'admin':
-            try: 
+            try:
                 # Filtra las citas por doctor si se proporciona id_doctor en el query
-                citas_filtradas = CitaMedica.query.filter_by(id_doctor=id_doctor, estado='activa').all()
+                citas_filtradas = CitaMedica.query.filter_by(id_doctor=id_doctor,
+                                                             estado='activa').all()
                 if not citas_filtradas:
                     return jsonify({'error': 'El doctor no tiene citas agendadas'}), 201
-                citas_salida = [cita.to_dict() for cita in citas_filtradas]              
+                citas_salida = [cita.to_dict() for cita in citas_filtradas]
             except ValueError:
                 return jsonify({'error': 'Parámetro id_doctor inválido'}), 400
         elif user_rol == 'medico':
-            # Se recupera el id_doctor del peticionario
-            usuario = Usuario.query.filter_by(username=username).first()
-            id = usuario.id_usuario
-            if usuario:
-                # Accede al objeto Doctor a través del atributo 'id_usuario'
-                doctor = Doctor.query.filter_by(id_usuario=id).first()
-                id_doct = str(doctor.id_doctor)
+            # Se recupera el username del peticionario
+            url = f'{BASE_URL}/admin/doctor/username?username={username}'
+            # Se busca al doctor mediante una petición GET
+            response = requests.get(url, headers=headers, timeout=3)
+            # Verifica si la petición fue exitosa
+            if response.status_code == 200:
+                # Decodificar la respuesta JSON en un diccionario o lista de Python
+                doctor = response.json()
+            else:
+                # Maneja códigos de error
+                return jsonify({'error': f'Error al obtener datos: {response.status_code}'})
+            # Se comprueba que existe
+            if not doctor:
+                return jsonify({'error': 'El Doctor no existe en la Base de Datos'}), 200
+            # Se obtiene el id_doctor_peticionario de la respuesta
+            id_doctor_peticionario = doctor['id_doctor']
             # Si el solicitante coincide con el id_doctor para el que se piden las citas
-            if id_doctor == id_doct:
+            if id_doctor == str(id_doctor_peticionario):
                 try:
-                    # Filtra las citas por doctor si se proporciona id_doctor en el query
-                    citas_filtradas = CitaMedica.query.filter_by(id_doctor=id_doctor, estado='activa').all()
+                    # Se filtran las citas por doctor proporcionando id_doctor en el query
+                    citas_filtradas = CitaMedica.query.filter_by(id_doctor=id_doctor,
+                                                                estado='activa').all()
                     if not citas_filtradas:
                         return jsonify({'error': 'El doctor no tiene citas agendadas'}), 201
-                    citas_salida = [cita.to_dict() for cita in citas_filtradas]             
                 except ValueError:
                     return jsonify({'error': 'Parámetro id_doctor inválido'}), 400
+                # Se obtienen las citas buscadas
+                citas_salida = [cita.to_dict() for cita in citas_filtradas]
             else:
                 return jsonify({'error': 'No está autorizado a ver las citas de otro doctor.'}), 400
         else:
             return jsonify({'error': 'No está autorizado a listar las citas por doctor.'}), 400
-    
-    if fecha: 
+
+    if fecha:
         if user_rol == 'admin' or user_rol == 'secretaria':
             # Filtra las citas por fecha si se proporciona fecha en el query
             try:
@@ -192,53 +254,54 @@ def get_citas():
                 citas_filtradas = CitaMedica.query.filter_by(fecha=fecha_obj).all()
                 if not citas_filtradas:
                     return jsonify({'error': 'No hay citas agendadas en esa fecha'}), 201
-                citas_salida = [cita.to_dict() for cita in citas_filtradas]               
+                citas_salida = [cita.to_dict() for cita in citas_filtradas]
             except ValueError:
                 return jsonify({'error': 'Formato de fecha inválido. Use: DD-MM-YYYY HH:MM:SS'}), 400
         else:
             return jsonify({'error': 'No está autorizado a listar las citas por fecha.'}), 400
-    
-    if id_paciente: 
+
+    if id_paciente:
         if user_rol == 'admin':
             # Filtra las citas por paciente si se proporciona id_paciente en el query
             try:
                 citas_filtradas = CitaMedica.query.filter_by(id_paciente=id_paciente).all()
                 if not citas_filtradas:
                     return jsonify({'error': 'No hay citas agendadas para ese paciente'}), 201
-                citas_salida = [cita.to_dict() for cita in citas_filtradas]              
+                citas_salida = [cita.to_dict() for cita in citas_filtradas]
             except ValueError:
                 return jsonify({'error': 'Parámetro id_paciente inválido'}), 400
         else:
             return jsonify({'error': 'No está autorizado a listar las citas de un paciente.'}), 400
-    
-    if id_centro: 
+
+    if id_centro:
         if user_rol == 'admin':
             # Filtra las citas por centro mèdico si se proporciona id_centro en el query
             try:
                 citas_filtradas = CitaMedica.query.filter_by(id_centro=id_centro).all()
-                citas_salida = [cita.to_dict() for cita in citas_filtradas]              
+                citas_salida = [cita.to_dict() for cita in citas_filtradas]
             except ValueError:
                 return jsonify({'error': 'Parámetro id_centro inválido'}), 400
         else:
             return jsonify({'error': 'No está autorizado a listar los centros médicos.'}), 400
-    
-    if estado: 
+
+    if estado:
         if user_rol == 'admin':
         # Filtra las citas por estado si se proporciona en el query
             try:
                 citas_filtradas = CitaMedica.query.filter_by(estado=estado).all()
-                citas_salida = [cita.to_dict() for cita in citas_filtradas]              
+                citas_salida = [cita.to_dict() for cita in citas_filtradas]
             except ValueError:
                 return jsonify({'error': 'Parámetro estado inválido'}), 400
         else:
             return jsonify({'error': 'No está autorizado a listar las citas por estado.'}), 400
-    
+
     if citas_salida == [] or citas_salida == '':
         return jsonify({'error': 'La consulta no contiene ningún resultado.'}), 200
-    # Devuelve el resultado de la consulta 
+    # Devuelve el resultado de la consulta
     # no debe devolver todas las citas
     return jsonify({'Citas':citas_salida}), 200
-   
+
+
 
 # --------- Ruta para modificar datos en una cita -------------
 
@@ -251,7 +314,7 @@ def update_cita(id_cita):
 
     # Obtiene la cita por su ID
     cita = CitaMedica.query.get_or_404(id_cita)
-    
+
     # Extrae los datos a actualizar del body de la solicitud
     data = request.get_json()
 
@@ -261,31 +324,61 @@ def update_cita(id_cita):
         fecha_obj = datetime.strptime(data['fecha'], '%d-%m-%Y %H:%M:%S')
         # Busca citas del doctor en esa misma fecha para ver si está libre
         if 'id_doctor' in data:
-            cita_verif = CitaMedica.query.filter_by(id_doctor=data['id_doctor'],fecha=fecha_obj).first()
+            cita_verif = CitaMedica.query.filter_by(id_doctor=data['id_doctor'],
+                                                    fecha=fecha_obj).first()
             if cita_verif:
                 return jsonify({'error': 'El Doctor ya tiene una cita a esa hora en esa fecha'}), 200
         else:
-            cita_verif = CitaMedica.query.filter_by(id_doctor=cita.id_doctor,fecha=fecha_obj).first()
+            cita_verif = CitaMedica.query.filter_by(id_doctor=cita.id_doctor,
+                                                    fecha=fecha_obj).first()
             if cita_verif:
                 return jsonify({'error': 'El Doctor ya tiene una cita a esa hora en esa fecha'}), 200
         # Se modifica la fecha de la cita
         cita.fecha = fecha_obj
+    # Si se quiere cambiar el paciente de la cita
     if 'id_paciente' in data:
-        # Buscar al paciente en la base de datos
-        paciente = Paciente.query.filter_by(id_paciente=data['id_paciente']).first()
-        # Comprobar si está activo
-        if paciente.estado == EstadoUsuario.INACTIVO:
+        # Extrae el token del header Authorization: Bearer <token>
+        auth_header = request.headers.get('Authorization', '')
+        partes = auth_header.split()
+        token = partes[1]
+        # Si el token es válido
+        if token:
+            # Crea las cabeceras con el Bearer Token
+            headers = {
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json"
+                    }
+        # Se busca al paciente mediante una petición GET
+        url = f'{BASE_URL}/admin/paciente/{data['id_paciente']}'
+        response = requests.get(url, headers=headers, timeout=3)
+        # Se verifica si la petición fue exitosa
+        if response.status_code == 200:
+            # Decodificar la respuesta JSON en un diccionario o lista de Python
+            paciente = response.json()
+        else:
+            # Maneja códigos de error
+            return jsonify({'error': f'Error al obtener datos: {response.status_code}'})
+        # Se comprueba que existe el paciente
+        if not paciente:
+            return jsonify({'error': 'El paciente no existe en la Base de Datos'}), 200
+        #return jsonify({'paciente': paciente})
+        # Se comprueba si está activo
+        if paciente['Paciente']['estado'] == EstadoUsuario.INACTIVO:
             return jsonify({'error': 'Paciente no está activo',
                             'message': 'Utilice otra id_paciente para actualizar la cita.'}), 200
-        # Se modifica el paciente de la cita
+        # En caso contrario, se modifica el paciente de la cita
         cita.id_paciente = data['id_paciente']
+    # Si se quiere cambiar al doctor de la cita
     if 'id_doctor' in data:
-        cita_verif = CitaMedica.query.filter_by(id_doctor=data['id_doctor'],fecha=cita.fecha).first()
+        cita_verif = CitaMedica.query.filter_by(id_doctor=data['id_doctor'],
+                                                fecha=cita.fecha).first()
         if cita_verif:
-                return jsonify({'error': 'El Doctor ya tiene una cita a esa hora en esa fecha'}), 200
+            return jsonify({'error': 'El Doctor ya tiene una cita a esa hora en esa fecha'}), 200
         else:
             # Se modifica el doctor de la cita
             cita.id_doctor = data['id_doctor']
+
+    # Si se quiere cambiar el centro médico de la cita
     if 'id_centro' in data:
         # Se modifica el centro médico de la cita
         cita.id_centro = data['id_centro']
@@ -308,7 +401,7 @@ def cancelar_cita(id_cita):
 
     # Obtiene la cita por su ID
     cita = CitaMedica.query.get(id_cita)
-        
+
      # Si la cita existe
     if cita:
         # Comprobar si está activa
