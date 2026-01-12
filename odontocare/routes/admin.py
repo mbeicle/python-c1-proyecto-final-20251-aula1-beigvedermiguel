@@ -23,7 +23,9 @@ from odontocare.schemas import doctor_schema, paciente_schema, centro_medico_sch
 admin_bp = Blueprint('admin_bp', __name__, url_prefix='/admin')
 
 # Roles permitidos
-allowed_roles =['admin']
+allowed_roles =['admin', 'secretaria']
+allowed_roles_doctor_username =['admin', 'medico']
+
 
 # --------- Rutas para /admin/usuario -------------
 
@@ -83,7 +85,8 @@ def add_usuario():
 @requiere_rol(allowed_roles)
 def get_usuario(id_usuario):
     """
-    Endpoint GET para obtener los datos de un registro individual de usuario.
+    Endpoint GET para obtener los datos de un registro individual de usuario
+    proporcionando el 'id_usuario'.
     """
 
     # Obtiene los datos JSON del cuerpo de la petición
@@ -267,6 +270,38 @@ def get_doctor(id_doctor):
     # Si no se encuentra, error 404
     return jsonify({'error': 'Doctor no encontrado '}), 404
 
+# Define la ruta GET para buscar un doctor por su 'username' con query params
+@admin_bp.route('/doctor/username', methods=['GET'])
+@requiere_rol(allowed_roles_doctor_username)
+def get_doctor_username():
+    """
+    Endpoint GET para obtener los datos de un registro individual de doctor 
+    buscando por 'username' mediante query params.
+    """
+
+    # Obtiene los valores de los parámetros de consulta
+    username = request.args.get('username')
+    if not username:
+        return jsonify({'error': 'Se requiere el parámetro username'}), 400
+
+    # Consulta la base de datos para encontrar al usuario por username
+    usuario = Usuario.query.filter_by(username=username).first()
+    if usuario:
+        usuario_data = usuario.to_dict()
+        id_usuario = usuario_data['id_usuario']
+    # Si no se encuentra, error 404
+    else:
+        return jsonify({'error': 'Usuario no encontrado '}), 404
+
+    # Consulta la base de datos para encontrar al doctor por id_usuario
+    doctor = Doctor.query.filter_by(id_usuario=id_usuario).first()
+    if doctor:
+        doctor_data = doctor.to_dict()
+        #id_doctor = doctor_data.id_doctor
+        return jsonify(doctor_data)
+    # Si no se encuentra, error 404
+    return jsonify({'error': 'Doctor no encontrado '}), 404
+
 
 @admin_bp.route('/doctores', methods=['GET'])
 @requiere_rol(allowed_roles)
@@ -402,7 +437,7 @@ def add_paciente():
                         'id_usuario': id_usuario,
                         'id_paciente': new_paciente.id_paciente
                         }), 201
-    
+
     except Exception as e:
         # En caso de error, hacer rollback para no dejar rastro del registro del paciente
         db.session.rollback()
@@ -420,7 +455,7 @@ def get_paciente(id_paciente):
     Endpoint GET para obtener los datos de un registro individual de paciente.
     """
 
-    # Obtiene los datos JSON del cuerpo de la petición
+    # Realiza la petición con el id_paciente
     paciente = Paciente.query.get(id_paciente)
     # Si se encuentra al paciente, se devuelven sus datos
     if paciente:

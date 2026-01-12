@@ -99,7 +99,7 @@ def test_admin_id_usuario(client, auth_login_admin):
     'Prueba el endpoint /admin/usuario/<int:id_usuario>'
 
     # Se asigna un usuario al id_usuario
-    id_usuario = 5
+    id_usuario = 1
     # Se formatea la url con el id_usuario
     url = f'/admin/usuario/{id_usuario}'
     # Se preparan las cabeceras
@@ -118,8 +118,8 @@ def test_admin_id_usuario(client, auth_login_admin):
 
     assert 'rol' in user_data['Usuario']
     assert 'username' in user_data['Usuario']
-    assert user_data['Usuario']['rol'] == 'paciente'
-    assert user_data['Usuario']['username'] == 'user_paciente_2'
+    assert user_data['Usuario']['rol'] == 'admin'
+    assert user_data['Usuario']['username'] == 'user_admin'
 
 
 def test_admin_id_usuario_failed(client, auth_login_admin):

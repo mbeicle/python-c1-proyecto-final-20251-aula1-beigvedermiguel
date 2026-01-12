@@ -12,7 +12,7 @@ from odontocare.config import TestingConfig
 from odontocare.models.usuarios import Usuario
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def app():
     ' crea la app con configuración de prueba'
     app = create_app(config_class=TestingConfig)
@@ -47,7 +47,7 @@ def app():
         db.drop_all()
         db.session.remove() # Importante para limpiar la sesión
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def client(app):
     return app.test_client()
 
