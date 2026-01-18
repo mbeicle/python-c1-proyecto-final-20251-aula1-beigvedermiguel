@@ -1,0 +1,4 @@
+# Ignorar archivos de byte-code de Python
+__pycache__/
+*.py[cod]
+*$py.class

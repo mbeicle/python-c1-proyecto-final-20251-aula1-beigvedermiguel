@@ -1,0 +1,47 @@
+services:
+  servicio_gestion:
+    #restart: always
+    build:
+      context: . # El contexto es la raiz para poder ver app_gestion.py
+      dockerfile: ./servicio_gestion/Dockerfile  
+    container_name: servicio_gestion
+    volumes:
+      - .:/app    # Monta todo el proyecto en /app
+      - ./database:/database
+    environment:
+      FLASK_APP: app_gestion.py
+      DB_PATH: /database/odontocare.db
+      FLASK_ENV: development
+    ports:
+      - "5001:5001"
+    networks:
+      - api_network 
+    
+  servicio_citas:
+    #restart: always
+    build: 
+      context: . # El contexto es la raiz para poder ver app_citas.py
+      dockerfile: ./servicio_citas/Dockerfile
+    container_name: servicio_citas
+    volumes:
+      - .:/app    # Monta todo el proyecto en /app
+      - ./database:/database
+    environment:
+      FLASK_APP: app_citas.py
+      DB_PATH: /database/odontocare.db
+      FLASK_ENV: development
+    ports:
+      - "5002:5002"
+    networks:
+      - api_network
+        
+    # Asegura que 'gestion' (o al menos la base de datos) esté listo primero
+    depends_on:
+      - servicio_gestion
+
+volumes:
+  database:
+
+networks:
+  api_network:
+    driver: bridge
