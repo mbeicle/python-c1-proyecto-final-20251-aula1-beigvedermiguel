@@ -6,7 +6,7 @@ en la Base de datos.
 
 import requests
 
-from app_gestion import app
+from odontocare.app_gestion import app
 from script_cliente import cargar_cita, seed_admin, cargar_registros
 from servicio_gestion.extensions import db
 
