@@ -41,3 +41,8 @@ class Config:
     JWT_SECRET_KEY = getenv('JWT_SECRET_KEY')
     JWT_EXPIRATION_DELTA = datetime.timedelta(hours=12)  # Tiempo de expiración del token
     FLASK_ENV = getenv('FALSK_ENV')
+
+class TestingConfig(Config):
+    'configuración de testing'
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:' # Base de datos en memoria

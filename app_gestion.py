@@ -20,7 +20,7 @@ app.config.from_object(Config)
 db.init_app(app)
 # Creamos la base de datos
 with app.app_context():
-    
+
     # Registra los Blueprints
     app.register_blueprint(main.main, url_prefix='/')
     app.register_blueprint(auth.auth_bp, url_prefix='/auth')

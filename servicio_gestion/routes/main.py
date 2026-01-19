@@ -20,9 +20,9 @@ def home():
         'version': '1.0',
         'author': 'Miguel Beigveder',
         'endpoints': {
-            'main': '/odontocare/modulos/main',
-            'auth': '/odontocare/modulos/auth',
-            'admin': 'odontocare/modulos/admin',
-            'citas': 'odontocare/modulos/citas',
+            'main': '/servicio_gestion/modulos/main',
+            'auth': '/servicio_gestion/modulos/auth',
+            'admin': '/servicio_gestion/modulos/admin',
+            'citas': '/servicio_citas/modulos/citas',
         }
     }), 200

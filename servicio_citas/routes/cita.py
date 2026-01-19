@@ -169,26 +169,7 @@ def add_cita():
         return jsonify({'message': f'Error {e} al guardar la cita en la base de datos'}), 500
 
 
-# --------- Rutas para consultar una cita -------------
-
-# Define la ruta para GET /consultar una cita
-@citas_bp.route('/consultar/<int:id_cita>', methods=['GET'])
-@requiere_rol('paciente')
-def get_cita(id_cita):
-    """
-    Endpoint GET para obtener los datos de un registro individual de cita.
-    """
-
-    # Obtiene los datos JSON del cuerpo de la petición
-    cita = CitaMedica.query.get(id_cita)
-
-    # Si se encuentra la cita, se devuelven los datos
-    if cita:
-        data_cita = cita.to_dict()
-        return jsonify({'Cita': data_cita})
-    # Si no se encuentra, error 404
-    return jsonify({'error': 'Cita no encontrada'}), 404
-
+# --------- Rutas para consultar citas -------------
 
 # Define la ruta para GET /listar citas con query params
 @citas_bp.route('/listar_citas', methods=['GET'])

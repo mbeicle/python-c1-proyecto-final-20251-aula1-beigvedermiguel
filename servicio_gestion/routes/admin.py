@@ -34,7 +34,7 @@ allowed_roles_doctor_username =['admin', 'medico']
 @requiere_rol(allowed_roles)
 def add_usuario():
     """
-    Endpoint POST para recibir y añadir un registro individual de usuario.
+    Endpoint POST para añadir un registro individual de usuario.
     """
 
     # Obtiene los datos JSON del cuerpo de la petición
@@ -109,9 +109,9 @@ def get_usuarios():
     """
 
     # Obtiene parámetros de paginación de la URL.
-    # Los valores por defecto: página 1 y 10 elementos por página
+    # Los valores por defecto: página 1 y 5 elementos por página
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
+    per_page = request.args.get('per_page', 5, type=int)
 
     # Usa el método paginate() en la consulta
     pagination = Usuario.query.paginate(page=page, per_page=per_page, error_out=False)
@@ -140,7 +140,7 @@ def get_usuarios():
 @requiere_rol(allowed_roles)
 def add_doctor():
     """
-    Endpoint POST para recibir y añadir un registro individual de doctor.
+    Endpoint POST para añadir un registro individual de doctor.
     Antes de añadir el doctor, lo añade como usuario con los datos del doctor.
     """
 
@@ -258,7 +258,7 @@ def get_doctor(id_doctor):
     Endpoint GET para obtener los datos de un registro individual de doctor.
     """
 
-    # Obtiene los datos JSON del cuerpo de la petición
+    # Obtiene el id_doctor del parámetro de ruta
     doctor = Doctor.query.get(id_doctor)
     # Si se encuentra al usuario, se devuelven sus datos
     if doctor:
@@ -289,7 +289,7 @@ def get_doctor_username():
         id_usuario = usuario_data['id_usuario']
     # Si no se encuentra, error 404
     else:
-        return jsonify({'error': 'Usuario no encontrado '}), 404
+        return jsonify({'error': 'Usuario no encontrado.'}), 404
 
     # Consulta la base de datos para encontrar al doctor por id_usuario
     doctor = Doctor.query.filter_by(id_usuario=id_usuario).first()
@@ -309,9 +309,9 @@ def get_doctores():
     """
 
     # Obtiene parámetros de paginación de la URL.
-    # Los valores por defecto: página 1 y 10 elementos por página
+    # Los valores por defecto: página 1 y 5 elementos por página
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
+    per_page = request.args.get('per_page', 5, type=int)
 
     # Usa el método paginate() en la consulta
     pagination = Doctor.query.paginate(page=page, per_page=per_page, error_out=False)
@@ -341,7 +341,7 @@ def get_doctores():
 @requiere_rol(allowed_roles)
 def add_paciente():
     """
-    Endpoint POST para recibir y añadir un registro individual de paciente.
+    Endpoint POST para añadir un registro individual de paciente.
     Antes de añadir el paciente, lo añade como usuario con los datos del paciente.
     """
 
@@ -472,9 +472,9 @@ def get_pacientes():
     """
 
     # Obtiene parámetros de paginación de la URL.
-    # Los valores por defecto: página 1 y 10 elementos por página
+    # Los valores por defecto: página 1 y 5 elementos por página
     page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
+    per_page = request.args.get('per_page', 5, type=int)
 
     # Usa el método paginate() en la consulta
     pagination = Paciente.query.paginate(page=page, per_page=per_page, error_out=False)
@@ -507,7 +507,7 @@ def get_pacientes():
 @requiere_rol(allowed_roles)
 def add_centro():
     """
-    Endpoint POST para recibir y añadir un registro individual de centro_medico.
+    Endpoint POST para añadir un registro individual de centro_medico.
     """
 
     # Obtiene los datos JSON del cuerpo de la petición
