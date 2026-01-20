@@ -6,7 +6,7 @@ en la Base de datos.
 
 import requests
 
-from odontocare.app_gestion import app
+from app_gestion import app
 from script_cliente import cargar_cita, seed_admin, cargar_registros
 from servicio_gestion.extensions import db
 
@@ -20,17 +20,19 @@ def setup_services():
         # 1. Crea la base de datos
         with app.app_context():
             db.create_all()
-        print({'message': 'Base de datos creada.'})
+        print('Base de datos creada.')
         # 2. Llama al script de seed_admin para crear los usuarios admin y secretaria
         seed_admin.run_seed(app)
         # 3. Hace login con los datos de 'admin'
         token = cargar_registros.login()
+        if token:
+            print('Login de admin exitoso.')
         # 4. Carga el resto de los registros de los archivos 'csv' en la Base de Datos
         cargar_registros.carga_reg(token)
         print('Registros de doctores, pacientes y centros médicos creados.')
         # 5. Crea la primera cita médica
         cargar_cita.crear_cita(app, token)
-        print('Primera cita médica creada.')
+        print('Primera cita médica creada.\n')
     except requests.exceptions.ConnectionError:
         print('Error: El servicio_gestion no está corriendo.')
 

@@ -4,13 +4,10 @@ Script para crear_cita:
     Imprime en consola el JSON con la cita creada.
 '''
 
-import csv
 import os
-import sys
 import datetime
 import json
 import requests
-
 
 from servicio_citas.models.citas import CitaMedica
 

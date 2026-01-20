@@ -18,10 +18,9 @@ app = Flask(__name__)
 app.config.from_object(Config)
 # Indicamos a la app a qué base de datos se tiene que conectar
 db.init_app(app)
-# Creamos la base de datos
+# Registra los Blueprints
 with app.app_context():
 
-    # Registra los Blueprints
     app.register_blueprint(main.main, url_prefix='/')
     app.register_blueprint(auth.auth_bp, url_prefix='/auth')
     app.register_blueprint(admin.admin_bp, url_prefix='/admin')

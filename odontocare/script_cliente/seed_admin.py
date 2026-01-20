@@ -54,9 +54,9 @@ def run_seed(app):
                             except:
                                 db.session.rollback()
                                 raise
-                            print('Usuarios admin y secretaria, creados.')
                         else:
                             print(f'El usuario {rol} ya existe. Omitiendo seeding.')
+                print('Usuarios admin y secretaria, creados.')
                 with app.app_context():
                     db.session.close()
             except StopIteration:

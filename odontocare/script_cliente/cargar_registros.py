@@ -19,11 +19,11 @@ BASE_URL = 'http://localhost:5001'
 
 def login():
     '''
-    Lee las credenciales del 'admin' del fichero datos.csv
+    Lee las credenciales del 'admin' del fichero datos_usuarios.csv
     Envia petición POST de autenticación con el usuario 'admin'
     '''
 
-    # Lee las credenciales del 'admin' del fichero datos.csv para hacer login
+    # Lee las credenciales del 'admin' del fichero datos_usuarios.csv para hacer login
     try:
         with open(FILE_CSV, mode='r', newline='', encoding='utf-8') as file:
             reader = csv.reader(file)
